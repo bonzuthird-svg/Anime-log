@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1014">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Anime Log</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px system-ui,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<style>
+:root{
+  --bg:#0e1014;--surface:#171a21;--line:#262b36;--muted:#8b93a5;--text:#eef0f4;--border:#3a4152;
+  --accent:#f2a65a;--on-accent:#1a1205;--teal-bg:#12302c;--teal:#5fd8c0;--danger:#ff6b6b;
+  color-scheme:dark;
+}
+:root[data-xdark]{--bg:#000;--surface:#0c0e12}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:15px;line-height:1.35;
+  padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  min-height:100vh;overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+h1,h2,h3{margin:0}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:14px 0 8px;display:flex;align-items:center;gap:8px}
+.top h1{font-size:28px;line-height:34px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text)}
+.ib[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.ib svg{width:22px;height:22px}
+.search{display:flex;gap:8px;padding-bottom:8px}
+.inp{width:100%;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);padding:0 14px;outline:none}
+.inp:focus{border-color:var(--accent)}
+textarea.inp{height:auto;min-height:88px;padding:10px 14px;resize:vertical}
+select.inp{appearance:none}
+main{padding-bottom:calc(var(--barpad,96px) + env(safe-area-inset-bottom,0px))}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px;padding-top:6px}
+.card{display:flex;flex-direction:column;gap:8px;min-width:0;text-align:left}
+.cover{position:relative;width:100%;aspect-ratio:2/3;border-radius:14px;overflow:hidden;display:flex;align-items:flex-end;padding:10px;font-weight:700;font-size:14px;line-height:17px;color:#fff;background:#4a4f5e}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cover span{position:relative}
+.badge{position:absolute;top:8px;left:8px;padding:3px 8px;border-radius:10px;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:700;letter-spacing:.5px;z-index:1}
+.cap{font-size:15px;font-weight:700;line-height:19px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.sub{font-size:13px;color:var(--muted)}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.btn{height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--accent)}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn.dng{color:var(--danger)}
+.btn.full{width:100%}
+.list{display:flex;flex-direction:column;gap:10px;padding-top:6px}
+.row{display:flex;align-items:center;gap:12px;padding:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;text-align:left;width:100%}
+.row .th{width:48px;height:70px;border-radius:8px;flex-shrink:0;position:relative;overflow:hidden;background:#4a4f5e}
+.row .th img{width:100%;height:100%;object-fit:cover;display:block}
+.row .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.stars{display:inline-flex;gap:1px}
+.stars svg{width:14px;height:14px}
+#app,.sheet,#wheel,#dial{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+img{-webkit-user-drag:none}
+html[data-still] *{transition:none!important;animation:none!important}
+body.gridbg{background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:26px 26px}
+#wheel,#dial{position:fixed;inset:0;z-index:50;touch-action:none}
+#wheel{background:rgba(5,6,9,.74)}
+#wheel path{fill:var(--surface);stroke:var(--border);stroke-width:1}
+#wheel path.on{fill:var(--accent);stroke:var(--accent)}
+#wheel .wd{position:absolute;display:flex;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-50%);font-size:11px;font-weight:700;color:var(--muted);pointer-events:none;width:64px;text-align:center;line-height:13px}
+#wheel .wd svg{width:22px;height:22px}
+#wheel .wd.on{color:var(--on-accent)}
+#wheel .wc{position:absolute;width:84px;height:84px;border-radius:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:13px;line-height:16px;background:var(--bg);border:1px solid var(--border);color:var(--accent);pointer-events:none;padding:8px}
+#dial{background:rgba(5,6,9,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px}
+.dtitle{font-weight:700;font-size:16px;text-align:center;max-width:300px}
+.dr{position:relative;width:300px;height:300px;border-radius:50%;border:1px dashed var(--line)}
+.ds{position:absolute;width:44px;height:44px;border-radius:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;border:1.5px solid var(--border);color:var(--muted);background:var(--surface);pointer-events:none;transition:transform .12s,background .12s}
+.ds.past{background:#1d212b;color:#566073;opacity:.8;transform:translate(-50%,-50%) scale(.8)}
+.ds.sel{background:var(--accent);color:var(--on-accent);border-color:var(--accent);transform:translate(-50%,-50%) scale(1.18)}
+.dc{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:120px;text-align:center;pointer-events:none}
+.dn{font-size:44px;line-height:48px;font-weight:700;color:var(--accent)}
+.hud{position:relative;padding:14px;background:rgba(23,26,33,.9);border:1px solid var(--line)}
+.hud::before,.hud::after{content:'';position:absolute;width:12px;height:12px;border:0 solid var(--accent)}
+.hud::before{top:-1px;left:-1px;border-top-width:2px;border-left-width:2px}
+.hud::after{bottom:-1px;right:-1px;border-bottom-width:2px;border-right-width:2px}
+.hl{font-size:11px;line-height:16px;letter-spacing:2px;font-weight:700;color:var(--muted);text-transform:uppercase}
+.hv{font-size:30px;line-height:38px;font-weight:700}
+.ringfg{transition:stroke-dasharray .9s cubic-bezier(.2,.8,.2,1)}
+.bfill{height:8px;background:var(--accent);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.grip{width:28px;height:48px;display:flex;align-items:center;justify-content:center;color:var(--muted);touch-action:none;flex-shrink:0;cursor:grab;margin-left:-4px}
+.grip svg{width:16px;height:22px}
+.dayb{height:68px;border-radius:14px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(80% 36% at 50% -4%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 70%)}
+#app{position:relative;z-index:1}
+.top{background:color-mix(in srgb,var(--bg) 86%,transparent)}
+.count{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 8px;border-radius:13px;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);font-size:14px;font-weight:700;vertical-align:middle;margin-left:6px}
+.cover{border-radius:16px;box-shadow:0 10px 22px rgba(0,0,0,.38)}
+.cover::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent 58%);pointer-events:none}
+.cover span{position:relative;z-index:1;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.cover .badge{z-index:2;box-shadow:0 0 14px color-mix(in srgb,var(--accent) 70%,transparent)}
+.mono{position:absolute;right:-2px;top:-8px;font-style:normal;font-size:84px;line-height:1;font-weight:700;color:rgba(255,255,255,.15)}
+.airs{position:absolute;top:8px;right:8px;z-index:2;font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 7px;border-radius:8px;background:rgba(0,0,0,.5);color:#fff}
+.art,.row .th.art{background:radial-gradient(circle at 88% 10%,rgba(255,255,255,.24),transparent 40%),linear-gradient(155deg,color-mix(in srgb,var(--c) 68%,#fff) 0%,var(--c) 48%,color-mix(in srgb,var(--c) 48%,#000) 100%)}
+.row .th{box-shadow:0 4px 10px rgba(0,0,0,.35)}
+.row,.card .cover{transition:transform .12s}
+.btn,.ib,.tab,.dayb,.card>button{transition:transform .1s}
+.btn:active,.ib:active,.tab:active,.dayb:active,.card>button:active{transform:scale(.96)}
+.bar{height:7px}
+.bar i{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 65%,#fff),var(--accent));box-shadow:0 0 10px color-mix(in srgb,var(--accent) 60%,transparent)}
+.tl{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-size:12px;font-weight:500;color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,transparent);padding:3px 9px 3px 6px;border-radius:10px;width:fit-content}
+.banner{display:flex;align-items:center;gap:14px;padding:14px;margin:6px 0 4px;border-radius:18px;border:1px solid var(--border);background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 17%,var(--surface)),var(--surface) 72%);box-shadow:0 10px 26px rgba(0,0,0,.28)}
+.big{font-size:30px;line-height:36px;font-weight:700;letter-spacing:-.5px}
+.tab{position:relative}
+.tab[aria-selected="true"]::before{content:'';position:absolute;top:-6px;width:30px;height:3px;border-radius:2px;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+.tab[aria-selected="true"] svg{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--accent) 70%,transparent))}
+.tabs{box-shadow:0 -8px 24px rgba(0,0,0,.3)}
+.glow{position:absolute!important;left:0;right:0;top:0;height:340px;pointer-events:none;background:radial-gradient(120% 90% at 50% 0%,color-mix(in srgb,var(--c) 62%,transparent),transparent 72%)}
+.sheet>*{position:relative}
+.hero .cover{box-shadow:0 14px 34px color-mix(in srgb,var(--c) 55%,transparent)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.confetti i{position:absolute;width:8px;height:12px;border-radius:2px;animation:burst 1.1s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes burst{to{transform:translate(var(--x),calc(var(--y) + 230px)) rotate(var(--r));opacity:0}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+@keyframes slideup{from{opacity:0;transform:translateY(26px)}}
+@keyframes pop{from{opacity:0;transform:scale(.82)}}
+#app.enter main>.grid>*,#app.enter main>.list>*,#app.enter .hud,#app.enter .banner,#app.enter main>.seg,#app.enter main>.sec{animation:rise .4s cubic-bezier(.2,.8,.2,1) both}
+#app.enter .sheet{animation:slideup .3s cubic-bezier(.2,.8,.2,1)}
+#app.enter .grid>:nth-child(2),#app.enter .list>:nth-child(2){animation-delay:.04s}
+#app.enter .grid>:nth-child(3),#app.enter .list>:nth-child(3){animation-delay:.08s}
+#app.enter .grid>:nth-child(4),#app.enter .list>:nth-child(4){animation-delay:.12s}
+#app.enter .grid>:nth-child(5),#app.enter .list>:nth-child(5){animation-delay:.16s}
+#app.enter .grid>:nth-child(6),#app.enter .list>:nth-child(6){animation-delay:.2s}
+#app.enter .grid>:nth-child(n+7),#app.enter .list>:nth-child(n+7){animation-delay:.24s}
+#wheel>div{animation:pop .16s ease-out}
+#dial .dr{animation:pop .2s ease-out}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.chip{display:inline-flex;align-self:flex-start;align-items:center;padding:4px 10px;border-radius:12px;border:1px dashed var(--border);font-size:12px;color:var(--muted)}
+.ib:disabled{opacity:.35}
+.tab span{font-size:11px;white-space:nowrap}
+.empty{padding:48px 16px;text-align:center;color:var(--muted)}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);display:flex;
+  padding:6px max(10px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.tab{flex:1;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted);font-size:12px;font-weight:500;border-radius:12px}
+.tab svg{width:22px;height:22px}
+.tab[aria-selected="true"]{color:var(--accent);font-weight:700}
+.sheet{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;overflow-x:hidden;
+  padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-left,0px)) calc(32px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px))}
+.sheet-h{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.sheet-h h2{font-size:24px;line-height:30px;font-weight:700;flex:1;min-width:0}
+.sec{margin-top:18px}
+.lbl{font-size:12px;letter-spacing:1px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}
+.seg{display:flex;padding:3px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.seg button{flex:1;height:42px;border-radius:11px;color:var(--muted);font-weight:500;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:700}
+.flex{display:flex;gap:10px;align-items:center}
+.flex>*{min-width:0}
+.sw{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.sw button{height:46px;border-radius:23px;border:2px solid transparent;display:flex;align-items:center;justify-content:center}
+.sw button[aria-pressed="true"]{border:3px solid var(--text)}
+.sw svg{width:20px;height:20px}
+.hero{display:flex;gap:14px;align-items:flex-start}
+.hero .cover{width:112px;flex-shrink:0}
+.starsbig{display:flex;gap:4px}
+.starsbig button{width:44px;height:44px;display:flex;align-items:center;justify-content:center}
+.starsbig svg{width:30px;height:30px}
+.sw-t{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px}
+.sw-t .t{width:52px;height:32px;border-radius:16px;background:var(--line);position:relative;flex-shrink:0}
+.sw-t .t i{position:absolute;left:4px;top:4px;width:24px;height:24px;border-radius:12px;background:var(--muted);transition:transform .15s}
+.sw-t[aria-checked="true"] .t{background:var(--accent)}
+.sw-t[aria-checked="true"] .t i{transform:translateX(20px);background:var(--on-accent)}
+.tip{display:flex;gap:10px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:16px;font-size:14px}
+.tag{display:inline-block;padding:3px 10px;border-radius:12px;background:var(--teal-bg);color:var(--teal);font-size:12px;margin:0 6px 6px 0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:700;font-size:14px;max-width:90vw}
+.res{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){.sw-t .t i{transition:none}}
+</style>
+
+<div id="app"></div>
+
+<script>
+(function(){
+'use strict';
+const PALETTE=[['Red','#ff6b6b'],['Coral','#ff7a8a'],['Orange','#ff8a4c'],['Peach','#ffb38a'],['Amber','#f2a65a'],['Gold','#f5c542'],['Lemon','#e8e35a'],['Lime','#a3e635'],['Sage','#9ccf9c'],['Mint','#5fd8a0'],['Teal','#5fd8c0'],['Cyan','#4fd1e8'],['Ice','#a8e4ff'],['Sky','#5ab0ff'],['Blue','#4d8dff'],['Periwinkle','#8ea2ff'],['Indigo','#9b8cff'],['Violet','#b78cff'],['Orchid','#d68cff'],['Magenta','#f06be0'],['Pink','#ff7ac8'],['Rose','#ff7a9c'],['Sand','#d9c7a0'],['Silver','#c9d1e0']];
+const COVERS=['#2b7a4b','#7a3fb0','#2f5fc4','#a02f3f','#4a4f5e','#6b5a2a','#0b7a8a','#8a4b2a','#3a3f8a','#7a2f6b','#2f6b5a','#8a7a2a'];
+const DAYS=['','Mondays','Tuesdays','Wednesdays','Thursdays','Fridays','Saturdays','Sundays'];
+const STAT={watching:'Watching',watched:'Watched',unwatched:'Unwatched',calendar:'Calendar',picks:'Top Picks'};
+const CATALOG=[
+ ['Yu Yu Hakusho','Because you love Hunter x Hunter',['Action','Supernatural']],
+ ['Another','Because you loved Erased',['Mystery','Horror']],
+ ['Saga of Tanya the Evil','Because you like Slime and Overlord',['Isekai','Dark fantasy']],
+ ['Death Parade','Because you like mysteries with a twist',['Mystery','Psychological']],
+ ['Assassination Classroom','Because you love Saiki K and Mob Psycho 100',['Comedy','Action']],
+ ['Noragami','Because you liked Jujutsu Kaisen',['Supernatural','Action']],
+ ['Blue Exorcist','Because you liked Jujutsu Kaisen',['Dark fantasy','Action']],
+ ['KonoSuba','Because you like Overlord and Slime',['Isekai','Comedy']],
+ ['Black Clover','Because you like long action fantasy',['Fantasy','Action']],
+ ['Fire Force','Because you liked Kaiju No. 8',['Action','Supernatural']],
+ ['Monster','Because you loved Death Note and Parasyte',['Mystery','Thriller']],
+ ['Fate/Zero','Because you liked Vinland Saga',['Dark fantasy','Action']],
+ ['Akame ga Kill!','Because you liked Tokyo Ghoul',['Dark fantasy','Action']],
+ ['86 Eighty-Six','Because you liked Attack on Titan',['Sci-fi','War']],
+ ['Ranking of Kings','Because you liked Made in Abyss',['Fantasy','Adventure']],
+ ['Moriarty the Patriot','Because you like Death Note-style mind games',['Mystery','Historical']],
+ ['Zom 100','Because you liked Dandadan',['Comedy','Horror']],
+ ['The Devil Is a Part-Timer!','Because you like isekai comedy',['Comedy','Fantasy']],
+ ['Cowboy Bebop','Because you love tight, classic stories',['Sci-fi','Action']],
+ ['Black Lagoon','Because you like dark action',['Action','Crime']],
+ ['The Seven Deadly Sins','Because you liked Mushoku Tensei',['Fantasy','Adventure']],
+ ['Magi','Because you liked Tsukimichi',['Adventure','Fantasy']],
+ ['Classroom of the Elite','Because you like mind games',['Mystery','Psychological']],
+ ['Re:Creators','Because you like isekai twists',['Isekai','Action']]
+];
+
+const SEED=[
+ ['watching','Overgeared',{ep:1,total:12,airs:'Sundays',where:'Crunchyroll'}],
+ ['watching','Mushoku Tensei: Jobless Reincarnation',{aliases:['Mushoku Tensei','Jobless Reincarnation'],newSeason:true}],
+ ['watching','That Time I Got Reincarnated as a Slime',{aliases:['Tensei Shitara Slime Datta Ken','TTIGRAAS','Slime'],newSeason:true}],
+ ['watching','Overlord'],['watching','Re:Zero',{aliases:['Re:Zero - Starting Life in Another World']}],
+ ['watching','The Rising of the Shield Hero',{aliases:['Tate no Yuusha no Nariagari']}],
+ ['watched','Hunter x Hunter',{rating:5}],['watched','Mob Psycho 100',{rating:5}],
+ ['watched','Erased',{aliases:['Boku dake ga Inai Machi']}],['watched','Tokyo Ghoul'],['watched','Death Note'],
+ ['watched','Fullmetal Alchemist: Brotherhood',{aliases:['FMAB']}],['watched','Attack on Titan',{aliases:['Shingeki no Kyojin']}],
+ ['watched','Vinland Saga'],['watched','Dungeon Meshi',{aliases:['Delicious in Dungeon'],newSeason:true}],
+ ['watched','Spy x Family'],['watched','One Punch Man'],['watched','Saiki K',{aliases:['The Disastrous Life of Saiki K.']}],
+ ['watched','Dr. Stone'],['watched','Berserk'],['watched','Made in Abyss'],['watched','Hell\'s Paradise',{aliases:['Jigokuraku']}],
+ ['watched','Jujutsu Kaisen'],['watched','Solo Leveling'],['watched','Kaiju No. 8'],['watched','Dandadan'],
+ ['watched','Steins;Gate'],['watched','Parasyte',{aliases:['Kiseijuu']}],
+ ['watched','Tsukimichi: Moonlit Fantasy',{aliases:['Tsuki ga Michibiku Isekai Douchuu']}],
+ ['watched','The Eminence in Shadow',{aliases:['Kage no Jitsuryokusha ni Naritakute']}],
+ ['watched','Lord of Mysteries'],
+ ['unwatched','Kingdom'],['unwatched','Goblin Slayer'],['unwatched','Claymore']
+];
+
+let S={shows:{},settings:{accent:'#f2a65a',view:'grid',tab:'watching',name:'Anime Log',xdark:false,dismissed:[],reduce:false,bar:true,t5:'chosen',tagsV:0,epMins:24,xp:0,eps:0,fin:0,isek:0}};
+let db=null,dl=null,ui={enter:true,seed:Math.floor(Math.random()*1e9),q:'',search:false,sheet:null,id:null,toast:'',note:''};
+const timers={};
+
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hash=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h};
+const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'show';
+const dkey=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const today=()=>dkey(new Date());
+const TAGMAP={'Overgeared':['Isekai','Fantasy','Comedy'],'Mushoku Tensei: Jobless Reincarnation':['Isekai','Fantasy'],'That Time I Got Reincarnated as a Slime':['Isekai','Fantasy'],'Overlord':['Isekai','Dark fantasy'],'Re:Zero':['Isekai','Dark fantasy'],'The Rising of the Shield Hero':['Isekai','Fantasy'],'Tsukimichi: Moonlit Fantasy':['Isekai','Fantasy'],'The Eminence in Shadow':['Isekai','Comedy'],'Lord of Mysteries':['Mystery','Dark fantasy'],'Hunter x Hunter':['Adventure','Action'],'Mob Psycho 100':['Supernatural','Comedy'],'Erased':['Mystery','Thriller'],'Tokyo Ghoul':['Dark fantasy','Horror'],'Death Note':['Mystery','Thriller'],'Fullmetal Alchemist: Brotherhood':['Adventure','Fantasy'],'Attack on Titan':['Dark fantasy','Action'],'Vinland Saga':['Historical','Action'],'Dungeon Meshi':['Fantasy','Comedy'],'Spy x Family':['Comedy','Action'],'One Punch Man':['Action','Comedy'],'Saiki K':['Comedy'],'Dr. Stone':['Adventure','Sci-fi'],'Berserk':['Dark fantasy','Action'],'Made in Abyss':['Dark fantasy','Adventure'],"Hell's Paradise":['Dark fantasy','Action'],'Jujutsu Kaisen':['Dark fantasy','Supernatural'],'Solo Leveling':['Action','Fantasy'],'Kaiju No. 8':['Action','Sci-fi'],'Dandadan':['Supernatural','Comedy'],'Steins;Gate':['Sci-fi','Mystery'],'Parasyte':['Horror','Mystery'],'Kingdom':['Historical','Action'],'Goblin Slayer':['Dark fantasy','Action'],'Claymore':['Dark fantasy','Action']};
+function mk(title,status,o){o=o||{};return Object.assign({id:slug(title)+'-'+(hash(title)%1000),title,aliases:[],status,ep:0,total:0,rating:0,tags:[],where:'',airs:'',newSeason:false,notes:'',cover:'',color:COVERS[hash(title)%COVERS.length],order:0,rewatches:0,days:[],updated:Date.now()},o)}
+function fmtMin(m){const h=Math.floor(m/60),r=m%60;return h?(r?h+'h '+r+'m':h+'h'):r+'m'}
+function timeLeft(s){if(!(s.total>0))return '';const n=s.total-(s.ep||0);if(n<=0)return '';return fmtMin(n*((s.mins>0?s.mins:0)||S.settings.epMins||24))}
+function finishBy(n){const d=new Date();d.setDate(d.getDate()+Math.max(0,n-1));return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}
+function bigRing(p,sz){sz=sz||92;const r=sz/2-8,C=2*Math.PI*r,c=sz/2;
+  return `<div style="position:relative;width:${sz}px;height:${sz}px;flex-shrink:0"><svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" aria-hidden="true"><circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="var(--line)" stroke-width="9"/><circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(Math.min(100,p)/100*C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 ${c} ${c})" style="filter:drop-shadow(0 0 6px var(--accent))"/></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:${sz>80?20:15}px">${Math.round(p)}%</div></div>`}
+function banner(){
+  const mins=s=>(s.total-(s.ep||0))*((s.mins>0?s.mins:0)||S.settings.epMins||24);
+  const all=Object.values(S.shows).filter(s=>s.status==='watching'&&s.total>0);
+  const w=all.filter(s=>s.total>(s.ep||0));
+  if(!w.length)return '';
+  const tot=w.reduce((n,s)=>n+mins(s),0),nx=w.slice().sort((a,b)=>mins(a)-mins(b))[0];
+  const done=all.reduce((n,s)=>n+Math.min(s.ep||0,s.total),0),sum=all.reduce((n,s)=>n+s.total,0);
+  return `<div class="banner">${bigRing(done/sum*100,76)}<div style="min-width:0"><div class="hl">Time left</div><div class="big">${fmtMin(tot)}</div><div class="sub">${w.length} show${w.length>1?'s':''} · closest to done: ${esc(nx.title)} in ${fmtMin(mins(nx))}</div></div></div>`}
+function confetti(){
+  if(reduced())return;
+  const w=document.createElement('div');w.className='confetti';document.body.appendChild(w);
+  const cols=['var(--accent)','#ffffff','#5fd8c0','#ff7ac8','#f5c542'];
+  for(let i=0;i<28;i++){const p=document.createElement('i'),a=Math.random()*Math.PI*2,d=90+Math.random()*150;
+    p.style.cssText='--x:'+(Math.cos(a)*d).toFixed(0)+'px;--y:'+(Math.sin(a)*d-70).toFixed(0)+'px;--r:'+Math.round(Math.random()*720-360)+'deg;background:'+cols[i%5]+';left:50%;top:42%;animation-delay:'+Math.round(Math.random()*80)+'ms';w.appendChild(p)}
+  setTimeout(()=>w.remove(),1500)}
+function fmtClock(t){const p=String(t).split(':').map(Number);if(p.length<2||isNaN(p[0]))return '';return ((p[0]%12)||12)+':'+String(p[1]).padStart(2,'0')+(p[0]<12?' AM':' PM')}
+function seed(){const m={};SEED.forEach((r,i)=>{const s=mk(r[1],r[0],r[2]);s.order=i;m[s.id]=s});return m}
+
+/* ---------- storage: localStorage cache + db (durable) ---------- */
+const LS='anime-log-v1';
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+function lsLoad(){try{const v=JSON.parse(localStorage.getItem(LS)||'null');return v&&v.shows?v:null}catch(e){return null}}
+function saveShow(s,keep){if(!keep)s.updated=Date.now();lsSave();clearTimeout(timers[s.id]);
+  timers[s.id]=setTimeout(()=>{if(db)db.collection('shows').doc(s.id).set(s).catch(()=>{ui.note='Saved on this device only';})},350)}
+function delShow(id){delete S.shows[id];lsSave();if(db)db.collection('shows').doc(id).delete().catch(()=>{})}
+function saveSettings(){lsSave();if(db)db.doc('meta/settings').set(S.settings).catch(()=>{})}
+async function init(){
+  const cached=lsLoad();
+  if(cached){S.shows=cached.shows;Object.assign(S.settings,cached.settings)}
+  applyTheme();render();
+  try{db=await claude.use('db')}catch(e){db=null}
+  try{dl=await claude.use('downloads')}catch(e){dl=null}
+  if(db){
+    try{
+      const snap=await db.collection('shows').get();
+      if(!snap.empty){const m={};snap.docs.forEach(d=>{m[d.id]=JSON.parse(JSON.stringify(d.data()))});S.shows=m}
+      else if(!Object.keys(S.shows).length){S.shows=seed();await Promise.all(Object.values(S.shows).map(s=>db.collection('shows').doc(s.id).set(s)))}
+      else{await Promise.all(Object.values(S.shows).map(s=>db.collection('shows').doc(s.id).set(s)))}
+      const st=await db.doc('meta/settings').get();
+      if(st.exists)Object.assign(S.settings,JSON.parse(JSON.stringify(st.data())));else await db.doc('meta/settings').set(S.settings);
+    }catch(e){ui.note='Working offline on this device'}
+  }
+  if(!Object.keys(S.shows).length)S.shows=seed();
+  if(!S.settings.tagsV){Object.values(S.shows).forEach(s=>{const t=TAGMAP[s.title];if(t&&!(s.tags||[]).length){s.tags=t.slice();if(db)db.collection('shows').doc(s.id).set(s).catch(()=>{})}});S.settings.tagsV=1;saveSettings()}
+  lsSave();applyTheme();render();
+  try{if(!localStorage.getItem('al-hint')){localStorage.setItem('al-hint','1');toast('Tip: hold anywhere, slide to a tab, let go.')}}catch(e){}
+}
+
+/* ---------- logic ---------- */
+function applyTheme(){const r=document.documentElement;r.style.setProperty('--accent',S.settings.accent);
+  if(S.settings.reduce)r.setAttribute('data-still','');else r.removeAttribute('data-still');
+  if(S.settings.xdark)r.setAttribute('data-xdark','');else r.removeAttribute('data-xdark')}
+function names(s){return [s.title].concat(s.aliases||[]).join(' ').toLowerCase()}
+function shows(status){
+  const q=ui.q.trim().toLowerCase();
+  let a=Object.values(S.shows).filter(s=>s.status===status&&(!q||names(s).includes(q)));
+  if(status==='watching')a.sort((x,y)=>y.updated-x.updated);
+  else if(status==='watched')a.sort((x,y)=>(y.rating||0)-(x.rating||0)||x.title.localeCompare(y.title));
+  else a.sort((x,y)=>x.order-y.order);
+  return a}
+function bump(k,n){S.settings[k]=(S.settings[k]||0)+n;saveSettings()}
+function onFinish(s){bump('xp',25);bump('fin',1);if((s.tags||[]).some(t=>String(t).toLowerCase()==='isekai'))bump('isek',1)}
+function addEps(s,n){
+  n=Math.max(0,Math.floor(n)||0);if(!n)return;
+  if(s.status==='unwatched'||s.status==='watched'){s.status='watching'}
+  s.ep=(s.ep||0)+n;bump('xp',n);bump('eps',n);
+  const t=today();if(!(s.days||[]).includes(t)){s.days=(s.days||[]).concat(t).slice(-400)}
+  if(s.total>0&&s.ep>=s.total){s.ep=s.total;s.status='watched';onFinish(s);confetti();ui.toast='Finished '+s.title+'! Rate it'}
+  saveShow(s)}
+function toast(m){ui.toast=m;render();clearTimeout(timers._t);timers._t=setTimeout(()=>{ui.toast='';render()},2200)}
+
+/* ---------- views ---------- */
+const I={
+ grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>',
+ list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+ search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
+ plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+ gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/></svg>',
+ back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
+ play:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.5v13l11-6.5z"/></svg>',
+ check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+ clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>'
+};
+I.cal='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>';
+I.spark='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M18.5 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg>';
+I.up='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>';
+I.down='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+I.dice='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="15" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>';
+const STAR='M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17.8 6.6 20.9l1-6.1L3.2 9.5l6.1-.9z';
+const star=(on,c)=>`<svg viewBox="0 0 24 24" fill="${on?c:'none'}" stroke="${on?c:'#4a5160'}" stroke-width="1.6" stroke-linejoin="round"><path d="${STAR}"/></svg>`;
+const stars=(r)=>r?`<span class="stars">${[1,2,3,4,5].map(i=>star(i<=r,'var(--accent)')).join('')}</span>`:'';
+
+function coverBox(s){
+  const ini=esc((String(s.title).match(/[A-Za-z0-9]/)||['?'])[0].toUpperCase());
+  return `<div class="cover art" style="--c:${s.color}">${s.cover?`<img src="${esc(s.cover)}" alt="">`:`<i class="mono">${ini}</i><span>${esc(s.title)}</span>`}${s.newSeason?'<div class="badge">NEW SEASON</div>':''}${s.airs&&s.status==='watching'?`<div class="airs">${esc(s.airs.slice(0,3).toUpperCase())}</div>`:''}</div>`}
+function progress(s){
+  if(s.status==='watching'){const pct=s.total?Math.min(100,Math.round(s.ep/s.total*100)):0;
+    return `<div class="bar"><i style="width:${pct}%"></i></div><div class="sub">${s.total?`Ep ${s.ep} / ${s.total} · ${s.total-s.ep} left`:`Ep ${s.ep}`}${s.airs?` · ${esc(s.airs)}`:''}</div>${timeLeft(s)?`<div class="tl"><svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--line)" stroke-width="3"/><circle cx="10" cy="10" r="8" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-dasharray="${(pct*50.27/100).toFixed(1)} 50.27" transform="rotate(-90 10 10)"/></svg>About ${timeLeft(s)} left</div>`:''}`}
+  if(s.status==='watched')return stars(s.rating)||'<div class="sub">Finished</div>';
+  return `<div class="sub">${s.where?esc(s.where):'Up next'}</div>`}
+function card(s){
+  const plus=s.status==='watching'?`<div class="flex"><button class="btn pri" style="flex:1" data-act="plus" data-id="${s.id}" aria-label="Add one episode to ${esc(s.title)}">+1 ep</button><button class="btn" data-act="dial" data-id="${s.id}" aria-label="Add several episodes to ${esc(s.title)}">+N</button></div>`:'';
+  return `<div class="card"><button data-act="open" data-id="${s.id}" style="text-align:left;display:flex;flex-direction:column;gap:8px">${coverBox(s)}<div class="cap">${esc(s.title)}</div></button>${progress(s)}${plus}</div>`}
+function rowv(s){
+  const plus=s.status==='watching'?`<div class="flex" style="flex-shrink:0"><button class="btn pri" style="padding:0 12px" data-act="plus" data-id="${s.id}" aria-label="Add one episode">+1</button><button class="btn" style="padding:0 12px" data-act="dial" data-id="${s.id}" aria-label="Add several episodes">+N</button></div>`:'';
+  return `<div class="row"><button data-act="open" data-id="${s.id}" class="flex" style="flex:1;text-align:left;min-width:0"><div class="th art" style="--c:${s.color}">${s.cover?`<img src="${esc(s.cover)}" alt="">`:''}</div><div class="mid"><div class="cap">${esc(s.title)}${s.newSeason?' <span class="tag" style="margin:0 0 0 4px">NEW SEASON</span>':''}</div>${progress(s)}</div></button>${plus}</div>`}
+
+function tabBar(){
+  if(S.settings.bar===false)return '';
+  const t=[['watching','Watching',I.play],['watched','Watched',I.check],['unwatched','Unwatched',I.clock],['calendar','Calendar',I.cal],['picks','Top Picks',I.spark]];
+  return `<nav class="tabs" role="tablist">${t.map(x=>`<button class="tab" role="tab" aria-selected="${S.settings.tab===x[0]}" data-act="tab" data-v="${x[0]}">${x[2]}<span>${x[1]}</span></button>`).join('')}</nav>`}
+
+function hdr(title,sub,extra){
+  return `<header class="top"><div style="flex:1;min-width:0"><h1 style="display:block">${esc(title)}</h1>${sub?`<div class="sub">${esc(sub)}</div>`:''}</div>${extra||''}
+    <button class="ib" data-act="add" aria-label="Add a show">${I.plus}</button>
+    <button class="ib" data-act="settings" aria-label="Settings">${I.gear}</button></header>`}
+function plusBtn(s){return s.status==='watching'?`<button class="btn pri" data-act="plus" data-id="${s.id}" aria-label="Add one episode to ${esc(s.title)}">+1</button>`:''}
+function thumb(s){return `<div class="th art" style="--c:${s.color}">${s.cover?`<img src="${esc(s.cover)}" alt="">`:''}</div>`}
+
+function main(){
+  const tab=S.settings.tab;
+  const body=tab==='calendar'?calendarView():tab==='picks'?picksView():tab==='stats'?statsView():tab==='top5'?top5View():tab==='unwatched'?queueView():mainBase();
+  return body+tabBar()}
+
+function queueView(){
+  const full=Object.values(S.shows).filter(s=>s.status==='unwatched').sort((a,b)=>a.order-b.order);
+  const q=ui.q.trim().toLowerCase();
+  const vis=full.filter(s=>!q||names(s).includes(q));
+  const rows=vis.map(s=>{const i=full.indexOf(s);
+    return `<div class="row" style="border-color:${i===0?'var(--accent)':'var(--line)'}">${q?'':`<button class="grip" data-id="${s.id}" aria-label="Drag ${esc(s.title)} to reorder">${I.grip}</button>`}
+    <div style="width:26px;text-align:center;font-size:22px;font-weight:700;color:${i===0?'var(--accent)':'var(--muted)'}">${i+1}</div>
+    <button data-act="open" data-id="${s.id}" class="flex" style="flex:1;min-width:0;text-align:left">${thumb(s)}<div class="mid"><div class="cap">${esc(s.title)}</div><span class="chip">${s.where?esc(s.where):'Where to watch'}</span></div></button>
+    <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+      <button class="ib" data-act="mv" data-id="${s.id}" data-v="-1" aria-label="Move ${esc(s.title)} up" ${i===0?'disabled':''}>${I.up}</button>
+      <button class="ib" data-act="mv" data-id="${s.id}" data-v="1" aria-label="Move ${esc(s.title)} down" ${i===full.length-1?'disabled':''}>${I.down}</button></div></div>`}).join('');
+  return hdr('Unwatched','Your Up Next queue',`<button class="ib" data-act="togsearch" aria-label="Search" aria-pressed="${ui.search}">${I.search}</button>`)+
+    (ui.search?`<div class="search"><input class="inp" id="q" type="search" placeholder="Search names, English or Japanese" value="${esc(ui.q)}" aria-label="Search"></div>`:'')+
+    `<main><button class="btn pri full" style="height:52px;font-size:16px" data-act="surprise">${I.dice.replace('<svg','<svg width="22" height="22"')} Surprise me</button>
+    <div class="lbl" style="margin-top:18px">Up Next · use the arrows to reorder</div>
+    <div class="list" style="padding-top:0">${rows||`<div class="empty">${q?'Nothing matches that.':'Your queue is empty. Add a show or grab one from Top Picks.'}</div>`}</div></main>`}
+
+function calendarView(){
+  const now=new Date(),todayI=(now.getDay()+6)%7;
+  const mon=new Date(now.getFullYear(),now.getMonth(),now.getDate()-todayI);
+  if(ui.calDay==null)ui.calDay=todayI;
+  const sel=ui.calDay,dn=DAYS.slice(1),sn=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const all=Object.values(S.shows);
+  const dayShows=i=>all.filter(s=>s.airs===dn[i]&&s.status!=='watched');
+  const dd=i=>new Date(mon.getFullYear(),mon.getMonth(),mon.getDate()+i);
+  const strip=sn.map((n,i)=>{const d=dd(i),on=i===sel,has=dayShows(i).length>0;
+    return `<button class="dayb" data-act="calday" data-v="${i}" aria-label="${n} ${d.toLocaleDateString(undefined,{month:'long',day:'numeric'})}" aria-pressed="${on}" style="border-color:${i===todayI?'var(--accent)':'var(--line)'};background:${on?'var(--accent)':'var(--surface)'};color:${on?'var(--on-accent)':'var(--text)'}"><span style="font-size:12px;line-height:16px;font-weight:500">${n}</span><span style="font-size:18px;line-height:22px;font-weight:700">${d.getDate()}</span><span style="width:6px;height:6px;border-radius:3px;background:${has?(on?'var(--on-accent)':'var(--accent)'):'transparent'}"></span></button>`}).join('');
+  const list=dayShows(sel);
+  const cards=list.map(s=>`<div class="row" style="padding:12px;border-radius:16px"><button data-act="open" data-id="${s.id}" class="flex" style="flex:1;min-width:0;text-align:left;gap:14px">${thumb(s)}<div class="mid"><div class="cap">${esc(s.title)}${s.newSeason?' <span class="tag" style="margin:0 0 0 4px">NEW SEASON</span>':''}</div><div class="sub">${s.status==='watching'?'Episode '+((s.ep||0)+1):'In your queue'}${s.where?' · '+esc(s.where):''}</div>${s.airTime&&fmtClock(s.airTime)?`<div><span class="tag" style="margin:0">${fmtClock(s.airTime)}</span></div>`:''}</div></button>${plusBtn(s)}</div>`).join('');
+  const pend=all.filter(s=>s.status==='watching'&&!s.airs);
+  const pendHtml=pend.length?`<div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:22px"><div style="font-size:18px;line-height:24px;font-weight:700">Airing weekly</div><div class="sub">Air day not set</div></div><div class="list">${pend.map(s=>`<div class="row" style="padding:10px 12px;border-radius:16px">${thumb(s)}<div class="mid"><div class="cap">${esc(s.title)}</div></div><button class="btn" data-act="open" data-id="${s.id}">Set day</button></div>`).join('')}</div>`:'';
+  return hdr('Calendar','Week of '+mon.toLocaleDateString(undefined,{month:'long',day:'numeric'}))+
+    `<main><div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;padding-top:6px">${strip}</div>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:22px"><div style="font-size:18px;line-height:24px;font-weight:700">${dd(sel).toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'})}</div><div class="sub">${list.length} episode${list.length===1?'':'s'}</div></div>
+    <div class="list">${cards||'<div class="sub" style="padding:6px 2px">Nothing airs this day.</div>'}</div>${pendHtml}</main>`}
+
+function pickList(){
+  const have=new Set();Object.values(S.shows).forEach(s=>[s.title].concat(s.aliases||[]).forEach(n=>have.add(String(n).toLowerCase())));
+  const dis=S.settings.dismissed||[];
+  let x=(ui.seed|0)||1;const rnd=()=>{x=(Math.imul(x,1664525)+1013904223)>>>0;return x/4294967296};
+  return CATALOG.map((c,i)=>({c,i})).filter(o=>!have.has(o.c[0].toLowerCase())&&!dis.includes(o.c[0]))
+    .map(o=>[rnd(),o]).sort((a,b)=>a[0]-b[0]).map(a=>a[1]).slice(0,6)}
+function picksView(){
+  const l=pickList();
+  const cards=l.map(o=>`<div class="card"><div class="cover" style="background:${COVERS[hash(o.c[0])%COVERS.length]}"><span>${esc(o.c[0])}</span></div>
+    <div class="sub">${esc(o.c[1])}</div><div class="sub">${o.c[2].map(esc).join(' · ')}</div>
+    <button class="btn full" data-act="pickadd" data-v="${o.i}">Add to Up Next</button>
+    <button class="btn full" style="color:var(--muted)" data-act="pickno" data-v="${o.i}">Not for me</button></div>`).join('');
+  return hdr('Top Picks','Chosen from what you love',`<button class="btn" data-act="refresh">Refresh</button>`)+
+    `<main>${l.length?`<div class="grid">${cards}</div>`:'<div class="empty">You have seen or skipped everything on my list. More picks come later.</div>'}
+    <div class="sub" style="margin-top:16px">I chose these by hand to match what you've told me. Check that an English dub exists before you start one.</div></main>`}
+
+function mainBase(){
+  const tab=S.settings.tab,a=shows(tab),v=S.settings.view;
+  const sv=v==='grid'?I.list:I.grid;
+  const body=!a.length?`<div class="empty">${ui.q?'Nothing matches that.':tab==='watching'?'Nothing in progress. Tap + to add a show.':'Nothing here yet.'}</div>`:
+    v==='grid'?`<div class="grid">${a.map(card).join('')}</div>`:`<div class="list">${a.map(rowv).join('')}</div>`;
+  return `<header class="top"><div style="flex:1;min-width:0"><h1 style="display:block">${esc(STAT[tab])}</h1><div class="sub">${a.length} show${a.length===1?'':'s'}</div></div>
+    <button class="ib" data-act="togsearch" aria-label="Search" aria-pressed="${ui.search}">${I.search}</button>
+    <button class="ib" data-act="view" aria-label="Switch to ${v==='grid'?'list':'grid'} view">${sv}</button>
+    <button class="ib" data-act="add" aria-label="Add a show">${I.plus}</button>
+    <button class="ib" data-act="settings" aria-label="Settings">${I.gear}</button></header>
+    ${ui.search?`<div class="search"><input class="inp" id="q" type="search" placeholder="Search names, English or Japanese" value="${esc(ui.q)}" aria-label="Search"></div>`:''}
+    <main>${S.settings.tab==='watching'&&!ui.q?banner():''}${body}</main>`}
+
+function detail(){
+  const s=S.shows[ui.id];if(!s)return '';
+  const id=s.id;
+  return `<div class="sheet" role="dialog" aria-label="${esc(s.title)}"><div class="glow" style="--c:${s.color}"></div>
+  <div class="sheet-h"><button class="ib" data-act="close" aria-label="Back">${I.back}</button><h2>${esc(s.title)}</h2></div>
+  <div class="hero">${coverBox(s)}<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+    <div class="seg" role="group" aria-label="Status">${['watching','watched','unwatched'].map(k=>`<button data-act="status" data-v="${k}" aria-pressed="${s.status===k}">${STAT[k]}</button>`).join('')}</div>
+    <label class="btn" style="cursor:pointer">Set cover photo<input type="file" accept="image/*" data-act="cover" hidden></label>
+    ${s.cover?'<button class="btn" data-act="nocover" style="color:var(--muted)">Remove cover</button>':''}
+  </div></div>
+
+  <div class="sec"><div class="lbl">Progress</div><div class="box">
+    ${s.total>0?`<div class="flex" style="gap:16px;margin-bottom:14px">${bigRing(Math.min(100,(s.ep||0)/s.total*100))}<div style="min-width:0"><div class="hl">Time left</div><div class="big">${timeLeft(s)||'All done'}</div><div class="sub">${s.total>(s.ep||0)?(s.total-(s.ep||0))+' episode'+(s.total-(s.ep||0)===1?'':'s')+' to go. One a day, you finish '+finishBy(s.total-(s.ep||0)):'Nothing left to watch'}</div></div></div>`:''}
+    <div class="flex"><div style="flex:1"><div class="sub">Episode</div><input class="inp" type="number" inputmode="numeric" min="0" id="f-ep" value="${s.ep}" aria-label="Current episode"></div>
+    <div style="flex:1"><div class="sub">Total (0 if unknown)</div><input class="inp" type="number" inputmode="numeric" min="0" id="f-total" value="${s.total}" aria-label="Total episodes"></div></div>
+    <div class="flex" style="margin-top:12px"><button class="btn pri" style="flex:1" data-act="plus" data-id="${id}">+1 episode</button>
+    <input class="inp" style="width:84px" type="number" inputmode="numeric" min="1" id="f-n" value="4" aria-label="Number of episodes">
+    <button class="btn" data-act="plusn" data-id="${id}">Add</button></div>
+    <button class="btn full" style="margin-top:10px" data-act="dial" data-id="${id}">Spin the number dial</button>
+    ${timeLeft(s)?`<div class="sub" style="margin-top:8px">About ${timeLeft(s)} left at ${s.mins>0?s.mins:(S.settings.epMins||24)} min per episode.</div>`:''}
+    <div class="sub" style="margin-top:8px">Watched a few in a row? Type how many and tap Add. Your episode count moves up by that much.</div>
+    ${s.status==='watching'?`<button class="btn full" style="margin-top:10px" data-act="finish" data-id="${id}">Mark finished</button>`:''}
+    ${s.status==='watched'?`<button class="btn full" style="margin-top:10px" data-act="rewatch" data-id="${id}">Start a rewatch${s.rewatches?` (${s.rewatches} so far)`:''}</button>`:''}
+  </div></div>
+
+  <div class="sec"><div class="lbl">Your rating</div><div class="starsbig" role="group" aria-label="Rating">${[1,2,3,4,5].map(i=>`<button data-act="rate" data-v="${i}" aria-label="${i} star${i>1?'s':''}">${star(i<=s.rating,'var(--accent)')}</button>`).join('')}</div></div>
+
+  <div class="sec"><div class="lbl">Names</div><div class="box" style="display:flex;flex-direction:column;gap:10px">
+    <div><div class="sub">Title</div><input class="inp" id="f-title" value="${esc(s.title)}"></div>
+    <div><div class="sub">Other names (comma separated). Search finds all of them.</div><input class="inp" id="f-aliases" value="${esc((s.aliases||[]).join(', '))}"></div></div></div>
+
+  <div class="sec"><div class="lbl">Details</div><div class="box" style="display:flex;flex-direction:column;gap:10px">
+    <div><div class="sub">Where to watch</div><input class="inp" id="f-where" value="${esc(s.where)}" placeholder="Crunchyroll, Netflix, Hulu"></div>
+    <div><div class="sub">Airs weekly on</div><select class="inp" id="f-airs"><option value="">Not airing</option>${DAYS.slice(1).map(d=>`<option ${s.airs===d?'selected':''}>${d}</option>`).join('')}</select></div>
+    <div><div class="sub">Air time (optional)</div><input class="inp" type="time" id="f-time" value="${esc(s.airTime||'')}"></div>
+    <div><div class="sub">Episode length in minutes (blank uses your default)</div><input class="inp" type="number" inputmode="numeric" min="0" id="f-mins" value="${s.mins>0?s.mins:''}"></div>
+    <div><div class="sub">Tags (comma separated, shown only here)</div><input class="inp" id="f-tags" value="${esc((s.tags||[]).join(', '))}" placeholder="Isekai, Dark fantasy">
+      <div style="margin-top:8px">${(s.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div></div>
+    <button class="sw-t" role="switch" aria-checked="${s.newSeason}" data-act="newseason"><span>New season out</span><span class="t"><i></i></span></button>
+    <div><div class="sub">Notes</div><textarea class="inp" id="f-notes">${esc(s.notes)}</textarea></div>
+  </div></div>
+
+  <div class="sec"><button class="btn dng full" data-act="delete" data-id="${id}">${ui.confirmDel===id?'Tap again to delete for good':'Delete show'}</button></div></div>`}
+
+function addSheet(){
+  return `<div class="sheet" role="dialog" aria-label="Add a show">
+  <div class="sheet-h"><button class="ib" data-act="close" aria-label="Back">${I.back}</button><h2>Add a show</h2></div>
+  <div class="box" style="display:flex;flex-direction:column;gap:10px">
+    <div><div class="sub">Title</div><div class="flex"><input class="inp" id="a-title" placeholder="Any name works"><button class="btn" data-act="lookup">Look up</button></div></div>
+    <div id="a-res"></div>
+    <div class="flex"><div style="flex:1"><div class="sub">Total episodes</div><input class="inp" id="a-total" type="number" inputmode="numeric" min="0" placeholder="0 if unknown"></div>
+    <div style="flex:1"><div class="sub">Add to</div><select class="inp" id="a-status"><option value="unwatched">Unwatched</option><option value="watching">Watching</option><option value="watched">Watched</option></select></div></div>
+    <button class="btn pri full" data-act="addgo">Add show</button></div>
+  <div class="sub" style="margin-top:10px">Online lookup fills in the title and episode count when this page is allowed to reach the internet. If it can't, just type the details.</div></div>`}
+
+function settingsSheet(){
+  const a=S.settings.accent;
+  return `<div class="sheet" role="dialog" aria-label="Settings">
+  <div class="sheet-h"><button class="ib" data-act="close" aria-label="Back">${I.back}</button><h2>Settings</h2></div>
+  <div class="lbl">Accent color</div><div class="box"><div class="sw">${PALETTE.map(c=>`<button data-act="accent" data-v="${c[1]}" aria-label="${c[0]}" aria-pressed="${a===c[1]}" style="background:${c[1]}">${a===c[1]?`<span style="color:#1a1205">${I.check}</span>`:''}</button>`).join('')}</div>
+  <div class="sub" style="margin-top:10px">One choice recolors every screen.</div></div>
+
+  <div class="sec"><div class="lbl">Look and feel</div><div class="box">
+    <button class="sw-t" style="width:100%" role="switch" aria-checked="${!!S.settings.xdark}" data-act="xdark"><span style="text-align:left"><div style="font-weight:500">Extra dark</div><div class="sub">Pure black background</div></span><span class="t"><i></i></span></button>
+    <button class="sw-t" style="width:100%" role="switch" aria-checked="${!!S.settings.reduce}" data-act="reduce"><span style="text-align:left"><div style="font-weight:500">Reduce animations</div><div class="sub">Turns off the Stats motion</div></span><span class="t"><i></i></span></button>
+    <button class="sw-t" style="width:100%" role="switch" aria-checked="${S.settings.bar!==false}" data-act="bar"><span style="text-align:left"><div style="font-weight:500">Bottom tab bar</div><div class="sub">Turn off for more room. The wheel still works.</div></span><span class="t"><i></i></span></button>
+    <div style="margin-top:10px"><div class="sub">App name</div><input class="inp" id="s-name" value="${esc(S.settings.name)}"></div>
+    <div style="margin-top:10px"><div class="sub">Typical episode length in minutes (used for time left)</div><input class="inp" id="s-mins" type="number" inputmode="numeric" min="1" value="${S.settings.epMins||24}"></div></div></div>
+
+  ${ui.inst?'<div class="sec"><button class="btn pri full" data-act="install">Install app on this phone</button></div>':''}
+  <div class="sec"><div class="lbl">Go to</div><div class="box" style="display:flex;gap:10px"><button class="btn" style="flex:1" data-act="tab" data-v="stats">Stats</button><button class="btn" style="flex:1" data-act="tab" data-v="top5">Top 5</button></div></div>
+
+  <div class="sec"><div class="lbl">Your library</div><div class="box" style="display:flex;flex-direction:column;gap:10px">
+    <button class="btn" data-act="autofill">Fetch covers and info from AniList</button><div class="sub" id="fm">${esc(ui.fetchMsg||'')}</div>
+    <hr style="border:0;border-top:1px solid var(--line);width:100%">
+    <div class="sub">Quick import: paste titles, one per line. They land in Unwatched.</div>
+    <textarea class="inp" id="s-import" placeholder="Kingdom&#10;Goblin Slayer"></textarea>
+    <button class="btn" data-act="import">Import titles</button>
+    <hr style="border:0;border-top:1px solid var(--line);width:100%">
+    <button class="btn" data-act="backup">Back up your list</button>
+    <div id="s-bk"></div>
+    <div class="sub">Restore: paste a backup below, or choose the saved file.</div>
+    <textarea class="inp" id="s-restore" placeholder="Paste backup text"></textarea>
+    <div class="flex"><button class="btn" style="flex:1" data-act="restore">Restore pasted</button>
+    <label class="btn" style="flex:1;cursor:pointer">Choose file<input type="file" accept=".json,application/json,text/plain" data-act="restorefile" hidden></label></div></div></div>
+
+  <div class="sec"><div class="lbl">Help</div>
+    <div class="tip"><div><b>Tab wheel:</b> hold anywhere on any screen for a moment, slide your finger to a tab, then let go. Let go in the middle to cancel.</div></div>
+    <div class="tip" style="margin-top:10px"><div><b>Tip:</b> tap a show to open it. Use +1 ep for one episode, or type a number on the show page to mark several at once.</div></div>
+    <div class="tip" style="margin-top:10px"><div>Finishing the last episode moves a show to Watched. Rate it on its page. Any alias you add (English, romaji, Japanese) works in search.</div></div>
+    <div class="tip" style="margin-top:10px"><div><b>Points:</b> Top 5 gives +1 for each day you watch a show, +5 for finishing it, +3 for each rewatch, and takes off 5 if you started it and haven't touched it in 30 days. Stats XP is 1 per episode, 25 per finished show and 10 per rating.</div></div></div>
+  </div>`}
+
+function render(){
+  const act=document.activeElement,keep=act&&act.id==='q';
+  const sh=ui.sheet==='detail'?detail():ui.sheet==='add'?addSheet():ui.sheet==='settings'?settingsSheet():'';
+  $app.className=ui.enter?'enter':'';ui.enter=false;
+  $app.innerHTML=main()+sh+(ui.toast?`<div class="toast" role="status">${esc(ui.toast)}</div>`:'');
+  if(keep){const q=document.getElementById('q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
+  document.documentElement.style.setProperty('--barpad',S.settings.bar===false?'28px':'96px');
+  document.body.classList.toggle('gridbg',S.settings.tab==='stats'&&!ui.sheet);
+  if(ui.statsAnim&&S.settings.tab==='stats'&&!ui.sheet){ui.statsAnim=false;runStatsAnim()}
+}
+const $app=document.getElementById('app');
+
+/* ---------- events ---------- */
+function cur(){return S.shows[ui.id]}
+function readFields(){
+  const s=cur();if(!s||ui.sheet!=='detail')return;
+  const g=id=>document.getElementById(id);
+  if(g('f-title')){const t=g('f-title').value.trim();if(t)s.title=t;
+    s.aliases=g('f-aliases').value.split(',').map(x=>x.trim()).filter(Boolean);
+    s.where=g('f-where').value.trim();s.airs=g('f-airs').value;s.airTime=g('f-time').value;s.mins=Math.max(0,parseInt(g('f-mins').value,10)||0);
+    s.tags=g('f-tags').value.split(',').map(x=>x.trim()).filter(Boolean);
+    s.notes=g('f-notes').value;
+    s.ep=Math.max(0,parseInt(g('f-ep').value,10)||0);s.total=Math.max(0,parseInt(g('f-total').value,10)||0);
+    if(s.total&&s.ep>s.total)s.ep=s.total}
+}
+document.addEventListener('input',e=>{if(e.target.id==='q'){ui.q=e.target.value;render()}});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id&&t.id.startsWith('f-')&&t.id!=='f-n'){readFields();saveShow(cur());render()}
+  if(t.id==='s-mins'){S.settings.epMins=Math.max(1,parseInt(t.value,10)||24);saveSettings();render()}
+  if(t.id==='s-name'){S.settings.name=t.value.trim()||'Anime Log';saveSettings()}
+  if(t.dataset&&t.dataset.act==='cover'&&t.files[0])doCover(t.files[0]);
+  if(t.dataset&&t.dataset.act==='restorefile'&&t.files[0]){const r=new FileReader();r.onload=()=>doRestore(String(r.result));r.readAsText(t.files[0])}
+});
+function doCover(file){
+  const img=new Image(),u=URL.createObjectURL(file);
+  img.onload=()=>{const w=260,h=Math.round(w*img.height/img.width);const c=document.createElement('canvas');c.width=w;c.height=Math.min(h,420);
+    const x=c.getContext('2d');x.drawImage(img,0,0,w,h);const s=cur();s.cover=c.toDataURL('image/jpeg',0.72);URL.revokeObjectURL(u);saveShow(s);render()};
+  img.onerror=()=>toast('Could not read that image');img.src=u}
+function doRestore(txt){
+  try{const o=JSON.parse(txt);if(!o||!o.shows)throw 0;
+    const arr=Array.isArray(o.shows)?o.shows:Object.values(o.shows);
+    arr.forEach(s=>{if(s&&s.id&&s.title){S.shows[s.id]=Object.assign(mk(s.title,s.status||'unwatched'),s);saveShow(S.shows[s.id])}});
+    if(o.settings){Object.assign(S.settings,o.settings);saveSettings()}
+    applyTheme();toast('Restored '+arr.length+' shows')}catch(e){toast('That backup could not be read')}}
+const ALQ='query($s:String,$st:MediaStatus){Page(perPage:6){media(search:$s,type:ANIME,sort:SEARCH_MATCH,status:$st){id title{romaji english native} synonyms episodes status format genres coverImage{large} nextAiringEpisode{episode airingAt}}}}';
+let alChain=Promise.resolve(),alLast=0;
+function alFetch(search,releasing){
+  const job=async()=>{
+    const gap=window.__alGap!=null?window.__alGap:2100,wait=alLast+gap-Date.now();
+    if(wait>0)await new Promise(r=>setTimeout(r,wait));
+    for(let k=0;k<2;k++){
+      const vars={s:search};if(releasing)vars.st='RELEASING';
+      const r=await fetch('https://graphql.anilist.co',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({query:ALQ,variables:vars})});
+      alLast=Date.now();
+      if(r.status===429){const ra=parseInt(r.headers.get('Retry-After'),10)||60;await new Promise(x=>setTimeout(x,Math.min(ra,90)*1000));continue}
+      if(!r.ok)throw new Error('http '+r.status);
+      const j=await r.json();if(j.errors&&!j.data)throw new Error('graphql');
+      return (j.data&&j.data.Page&&j.data.Page.media)||[]}
+    throw new Error('rate')};
+  const p=alChain.then(job,job);alChain=p.catch(()=>{});return p}
+const nrm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'');
+function bestMatch(s,list){
+  const want=[s.title].concat(s.aliases||[]).map(nrm).filter(Boolean);let best=null,bs=0;
+  list.forEach((m,i)=>{
+    const ns=[m.title.english,m.title.romaji,m.title.native].concat(m.synonyms||[]).map(nrm).filter(Boolean);let sc=0;
+    want.forEach(w=>ns.forEach(n=>{if(n===w)sc=Math.max(sc,3);else if(w.length>3&&n.length>3&&(n.includes(w)||w.includes(n)))sc=Math.max(sc,2)}));
+    if(sc)sc+=(list.length-i)*0.01;
+    if(sc>bs){bs=sc;best=m}});
+  return bs>=2?best:null}
+function applyMedia(s,m,o){
+  o=o||{};
+  if(!s.cover&&m.coverImage&&m.coverImage.large)s.cover=m.coverImage.large;
+  const have=new Set([s.title].concat(s.aliases||[]).map(nrm));const al=(s.aliases||[]).slice();
+  [m.title.english,m.title.romaji,m.title.native].concat(m.synonyms||[]).forEach(n=>{if(n&&!have.has(nrm(n))&&al.length<8){have.add(nrm(n));al.push(n)}});
+  s.aliases=al;
+  if(!(s.tags||[]).length&&m.genres&&m.genres.length)s.tags=m.genres.slice(0,3);
+  if(o.setTotal&&!s.total&&m.episodes)s.total=m.episodes;
+  if(m.status==='RELEASING'&&m.nextAiringEpisode&&s.status!=='watched'){
+    const d=new Date(m.nextAiringEpisode.airingAt*1000);
+    if(!s.airs)s.airs=DAYS[(d.getDay()+6)%7+1];
+    if(!s.airTime)s.airTime=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+  s.al=m.id;return s}
+function fm(msg){ui.fetchMsg=msg;const el=document.getElementById('fm');if(el)el.textContent=msg}
+async function autofill(){
+  if(ui.busy)return;
+  const rank={watching:0,unwatched:1,watched:2};
+  const todo=Object.values(S.shows).filter(s=>!s.cover).sort((a,b)=>rank[a.status]-rank[b.status]);
+  if(!todo.length){fm('Everything already has a cover.');return}
+  ui.busy=true;let ok=0;const miss=[];
+  try{
+    for(let i=0;i<todo.length;i++){
+      const s=todo[i];fm('Fetching '+(i+1)+' of '+todo.length+': '+s.title);
+      let list=[];
+      if(s.status==='watching'){list=await alFetch(s.title,true);if(!bestMatch(s,list))list=await alFetch(s.title,false)}
+      else list=await alFetch(s.title,false);
+      const m=bestMatch(s,list);
+      if(m){applyMedia(s,m,{setTotal:s.status!=='watching'||m.status==='RELEASING'});saveShow(s,true);ok++}else miss.push(s.title)}
+    fm('Done. Matched '+ok+' of '+todo.length+'.'+(miss.length?' No match for: '+miss.join(', ')+'. Open those and set a cover by hand.':''));
+  }catch(e){fm((ok?'Stopped after '+ok+' matches. ':'')+"Couldn't reach AniList from here. This works in the installed web app, not inside Claude's page.")}
+  ui.busy=false;render()}
+async function lookup(){
+  const t=document.getElementById('a-title').value.trim(),box=document.getElementById('a-res');
+  if(!t){box.textContent='';return}
+  box.innerHTML='<div class="sub">Looking up…</div>';
+  try{
+    const m=await alFetch(t,false);ui.results=m;
+    box.innerHTML=m.length?`<div class="box" style="padding:0">${m.map((x,i)=>`<button class="res" data-act="pick" data-v="${i}"><span class="flex" style="gap:10px">${x.coverImage&&x.coverImage.large?`<img src="${esc(x.coverImage.large)}" alt="" style="width:36px;height:52px;object-fit:cover;border-radius:6px;flex-shrink:0">`:''}<span>${esc(x.title.english||x.title.romaji)}<div class="sub">${esc(x.title.romaji)}</div></span></span><span class="sub" style="flex-shrink:0">${x.episodes||'?'} eps</span></button>`).join('')}</div>`:'<div class="sub">No matches. Add it by hand below.</div>';
+  }catch(e){box.innerHTML='<div class="sub">Online lookup isn\'t available here, so add it by hand below. Nothing is lost.</div>'}}
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-act]');if(!b||b.tagName==='INPUT')return;
+  const a=b.dataset.act,id=b.dataset.id,v=b.dataset.v;
+  if(a==='tab'){ui.enter=true;ui.sheet=null;ui.id=null;S.settings.tab=v;saveSettings();ui.q='';if(v==='stats')ui.statsAnim=true;render();window.scrollTo(0,0)}
+  else if(a==='view'){S.settings.view=S.settings.view==='grid'?'list':'grid';saveSettings();render()}
+  else if(a==='togsearch'){ui.search=!ui.search;if(!ui.search)ui.q='';render();if(ui.search){const q=document.getElementById('q');q&&q.focus()}}
+  else if(a==='open'){ui.enter=true;ui.sheet='detail';ui.id=id;ui.confirmDel=null;render();window.scrollTo(0,0)}
+  else if(a==='add'){ui.enter=true;ui.sheet='add';render()}
+  else if(a==='settings'){ui.enter=true;ui.sheet='settings';render()}
+  else if(a==='close'){readFields();if(cur())saveShow(cur());ui.sheet=null;ui.id=null;render()}
+  else if(a==='plus'){readFields();const s=S.shows[id];addEps(s,1);if(ui.toast){const m=ui.toast;ui.toast='';toast(m)}else render()}
+  else if(a==='plusn'){readFields();const n=parseInt(document.getElementById('f-n').value,10)||0;const s=S.shows[id];addEps(s,n);if(ui.toast){const m=ui.toast;ui.toast='';toast(m)}else render()}
+  else if(a==='finish'){const s=S.shows[id];if(s.status!=='watched'){onFinish(s);confetti()}if(s.total)s.ep=s.total;s.status='watched';const t=today();if(!s.days.includes(t))s.days.push(t);saveShow(s);toast('Finished. Rate it!');}
+  else if(a==='rewatch'){const s=S.shows[id];s.rewatches=(s.rewatches||0)+1;s.status='watching';s.ep=0;saveShow(s);render()}
+  else if(a==='status'){readFields();const s=cur();s.status=v;saveShow(s);render()}
+  else if(a==='rate'){readFields();const s=cur(),n=+v,was=s.rating;s.rating=s.rating===n?0:n;if(!was&&s.rating&&!s.xpRated){s.xpRated=true;bump('xp',10)}saveShow(s);render()}
+  else if(a==='calday'){ui.calDay=+v;render()}
+  else if(a==='newseason'){readFields();const s=cur();s.newSeason=!s.newSeason;saveShow(s);render()}
+  else if(a==='nocover'){const s=cur();s.cover='';saveShow(s);render()}
+  else if(a==='delete'){if(ui.confirmDel===id){delShow(id);ui.sheet=null;ui.id=null;ui.confirmDel=null;render()}else{ui.confirmDel=id;render()}}
+  else if(a==='accent'){S.settings.accent=v;applyTheme();saveSettings();render()}
+  else if(a==='xdark'){S.settings.xdark=!S.settings.xdark;applyTheme();saveSettings();render()}
+  else if(a==='mv'){const full=Object.values(S.shows).filter(s=>s.status==='unwatched').sort((x,y)=>x.order-y.order);
+    const i=full.findIndex(s=>s.id===id),j=i+(+v);if(i<0||j<0||j>=full.length)return;
+    const t=full[i];full[i]=full[j];full[j]=t;full.forEach((s,n)=>{s.order=n;saveShow(s)});render()}
+  else if(a==='surprise'){const full=Object.values(S.shows).filter(s=>s.status==='unwatched');
+    if(!full.length){toast('Your queue is empty');return}
+    const s=full[Math.floor(Math.random()*full.length)];ui.enter=true;ui.sheet='detail';ui.id=s.id;ui.confirmDel=null;toast('How about this one?');window.scrollTo(0,0)}
+  else if(a==='refresh'){ui.seed=Math.floor(Math.random()*1e9);render()}
+  else if(a==='pickadd'){const c=CATALOG[+v],mx=Math.max(-1,...Object.values(S.shows).filter(s=>s.status==='unwatched').map(s=>s.order));
+    const s=mk(c[0],'unwatched',{order:mx+1,tags:c[2].slice()});S.shows[s.id]=s;saveShow(s);toast('Added '+c[0]+' to Up Next')}
+  else if(a==='pickno'){const c=CATALOG[+v];S.settings.dismissed=(S.settings.dismissed||[]).concat(c[0]);saveSettings();render()}
+  else if(a==='dial'){if(ui.sheet==='detail')readFields();dialOpen(id)}
+  else if(a==='dialx'){dialClose(false)}
+  else if(a==='dialgo'){dialClose(true)}
+  else if(a==='t5'){S.settings.t5=v;saveSettings();render()}
+  else if(a==='reduce'){S.settings.reduce=!S.settings.reduce;applyTheme();saveSettings();render()}
+  else if(a==='bar'){S.settings.bar=S.settings.bar===false;saveSettings();render()}
+  else if(a==='autofill'){autofill()}
+  else if(a==='install'){if(ui.inst){ui.inst.prompt();ui.inst=null;render()}}
+  else if(a==='lookup'){lookup()}
+  else if(a==='pick'){const x=ui.results[+v];document.getElementById('a-title').value=x.title.english||x.title.romaji;
+    document.getElementById('a-total').value=x.episodes||'';ui.pick=x;document.getElementById('a-res').innerHTML='<div class="sub">Filled in. Tap Add show.</div>'}
+  else if(a==='addgo'){const t=document.getElementById('a-title').value.trim();if(!t){toast('Type a title first');return}
+    const st=document.getElementById('a-status').value,tot=parseInt(document.getElementById('a-total').value,10)||0;
+    const o={total:tot,order:Date.now()};
+    const s=mk(t,st,o);if(S.shows[s.id])s.id+= '-'+Date.now()%1000;if(ui.pick)applyMedia(s,ui.pick,{setTotal:!tot});S.shows[s.id]=s;saveShow(s);ui.pick=null;ui.sheet=null;S.settings.tab=st;saveSettings();render()}
+  else if(a==='import'){const ta=document.getElementById('s-import'),ls=ta.value.split('\n').map(x=>x.trim()).filter(Boolean);let n=0;
+    ls.forEach(t=>{const s=mk(t,'unwatched',{order:Date.now()+n});if(!S.shows[s.id]){S.shows[s.id]=s;saveShow(s);n++}});ta.value='';toast('Added '+n+' shows')}
+  else if(a==='backup'){const data=JSON.stringify({version:1,exported:today(),settings:S.settings,shows:Object.values(S.shows)},null,1);
+    let ok=false;if(dl){try{await dl.save({filename:'anime-log-backup-'+today()+'.json',data});ok=true;toast('Backup saved')}catch(err){}}
+    if(!ok){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download='anime-log-backup-'+today()+'.json';document.body.appendChild(a);a.click();a.remove()}catch(err){}const bk=document.getElementById('s-bk');bk.innerHTML='<div class="sub">Copy this text and keep it somewhere safe.</div><textarea class="inp" readonly id="s-bkt"></textarea>';
+      const t=document.getElementById('s-bkt');t.value=data;t.focus();t.select();try{await navigator.clipboard.writeText(data);toast('Copied to clipboard')}catch(err){}}}
+  else if(a==='restore'){doRestore(document.getElementById('s-restore').value)}
+});
+/* ---------- stats + top 5 ---------- */
+const reduced=()=>!!S.settings.reduce||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+I.stats='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>';
+I.trophy='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 01-8 0zM8 6H5v1a3 3 0 003 3M16 6h3v1a3 3 0 01-3 3M12 13v4M8.5 20h7"/></svg>';
+function streakOf(all){const set=new Set();all.forEach(s=>(s.days||[]).forEach(d=>set.add(d)));
+  const d=new Date();let n=0;if(!set.has(dkey(d)))d.setDate(d.getDate()-1);
+  while(set.has(dkey(d))){n++;d.setDate(d.getDate()-1)}return n}
+function calc(){
+  const all=Object.values(S.shows),fin=all.filter(s=>s.status==='watched');
+  const eps=S.settings.eps||0,xp=S.settings.xp||0;
+  let L=1;while(xp>=50*L*L)L++;
+  const lo=50*(L-1)*(L-1),hi=50*L*L,streak=streakOf(all);
+  const g={};all.forEach(s=>(s.tags||[]).forEach(t=>{const k=t.toLowerCase();g[k]=g[k]||{n:t,c:0};g[k].c++}));
+  const gl=Object.values(g).sort((a,b)=>b.c-a.c).slice(0,4);const tot=gl.reduce((n,x)=>n+x.c,0)||1;
+  const isek=S.settings.isek||0;
+  return{all,fin,eps,xp,L,lo,hi,streak,
+    watching:all.filter(s=>s.status==='watching').length,up:all.filter(s=>s.status==='unwatched').length,
+    genres:gl.map(x=>({name:x.n,pct:Math.round(x.c/tot*100)})),
+    badges:[['10 shows finished',(S.settings.fin||0)>=10],['7-day streak',streak>=7],['Isekai master',isek>=10],['100 episodes',eps>=100]]}}
+function statsView(){
+  const c=calc(),anim=ui.statsAnim&&!reduced(),C=2*Math.PI*46;
+  const dash=Math.max(0,Math.min(1,(c.xp-c.lo)/(c.hi-c.lo)))*C;
+  const num=n=>`<span data-n="${n}">${anim?0:n}</span>`;
+  const tile=(l,v)=>`<div class="hud" style="padding:12px 14px"><div class="hl">${l}</div><div class="hv">${num(v)}</div></div>`;
+  return hdr('Stats','Counting from the day you started')+`<main style="display:flex;flex-direction:column;gap:12px;padding-top:4px">
+  <div class="hud" style="display:flex;align-items:center;gap:16px"><div style="position:relative;width:112px;height:112px;flex-shrink:0">
+    <svg width="112" height="112" viewBox="0 0 112 112" aria-hidden="true" style="position:absolute;left:0;top:0"><circle cx="56" cy="56" r="46" fill="none" stroke="var(--line)" stroke-width="9"/><circle class="ringfg" data-d="${dash.toFixed(1)}" cx="56" cy="56" r="46" fill="none" stroke="var(--accent)" stroke-width="9" stroke-linecap="round" transform="rotate(-90 56 56)" style="stroke-dasharray:${anim?0:dash.toFixed(1)} ${C.toFixed(1)}"/></svg>
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div class="hl" style="letter-spacing:2px">Level</div><div style="font-size:38px;line-height:42px;font-weight:700">${num(c.L)}</div></div></div>
+    <div style="flex:1;min-width:0"><div class="hl">XP</div><div style="font-size:24px;line-height:30px;font-weight:700">${num(c.xp-c.lo)} <span style="font-size:15px;color:var(--muted);font-weight:500">/ ${c.hi-c.lo}</span></div>
+    <div style="height:8px;margin:8px 0;background:var(--line)"><div class="bfill" data-w="${Math.round((c.xp-c.lo)/(c.hi-c.lo)*100)}" style="width:${anim?0:Math.round((c.xp-c.lo)/(c.hi-c.lo)*100)}%"></div></div>
+    <div class="sub">${c.hi-c.xp} XP to Level ${c.L+1}</div></div></div>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">${tile('Finished',S.settings.fin||0)}${tile('Watching',c.watching)}${tile('Day streak',c.streak)}${tile('Episodes logged',c.eps)}</div>
+  <div class="hud"><div class="hl" style="margin-bottom:10px">Top genres</div><div style="display:flex;flex-direction:column;gap:10px">${c.genres.length?c.genres.map(g=>`<div class="flex"><div style="width:96px;font-size:14px;font-weight:500">${esc(g.name)}</div><div style="flex:1;height:8px;background:var(--line)"><div class="bfill" data-w="${g.pct}" style="width:${anim?0:g.pct}%"></div></div><div class="sub" style="width:38px;text-align:right">${g.pct}%</div></div>`).join(''):'<div class="sub">Add tags on a show\'s page and your top genres show up here.</div>'}</div></div>
+  <div class="hud"><div class="hl" style="margin-bottom:10px">Achievements</div><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">${c.badges.map(b=>`<div style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center"><div style="width:48px;height:48px;border-radius:24px;border:2px solid ${b[1]?'var(--accent)':'#4a5160'};display:flex;align-items:center;justify-content:center">${star(b[1],'var(--accent)')}</div><div style="font-size:12px;line-height:15px;color:${b[1]?'var(--text)':'var(--muted)'}">${b[0]}</div></div>`).join('')}</div></div>
+  </main>`}
+function runStatsAnim(){
+  if(reduced())return;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const C=2*Math.PI*46;document.querySelectorAll('.ringfg').forEach(e=>{e.style.strokeDasharray=e.dataset.d+' '+C.toFixed(1)});
+    document.querySelectorAll('.bfill').forEach(e=>{e.style.width=e.dataset.w+'%'});
+    const els=[...document.querySelectorAll('[data-n]')],t0=performance.now();
+    (function step(t){const k=Math.min(1,(t-t0)/800),ease=1-Math.pow(1-k,3);
+      els.forEach(e=>{e.textContent=Math.round(+e.dataset.n*ease)});if(k<1)requestAnimationFrame(step)})(t0)}))}
+function score(s){
+  const d=(s.days||[]).length;let p=d+(s.status==='watched'?5:0)+3*(s.rewatches||0);
+  if(s.status!=='watched'&&d&&(Date.now()-s.updated)/864e5>30)p-=5;
+  return Math.max(0,p)}
+function top5View(){
+  const mode=S.settings.t5||'chosen';
+  let a=Object.values(S.shows).map(s=>({s,p:score(s)}));
+  const byT=(x,y)=>x.s.title.localeCompare(y.s.title);
+  if(mode==='chosen')a.sort((x,y)=>y.p-x.p||(y.s.rating||0)-(x.s.rating||0)||byT(x,y));
+  else a=a.filter(o=>o.s.rating>0).sort((x,y)=>y.s.rating-x.s.rating||y.p-x.p||byT(x,y));
+  a=a.slice(0,5);
+  const rows=a.map((o,i)=>`<button data-act="open" data-id="${o.s.id}" class="row" style="border-color:${i===0?'var(--accent)':'var(--line)'}"><div style="width:28px;text-align:center;font-size:26px;line-height:30px;font-weight:700;color:${i===0?'var(--accent)':'var(--muted)'}">${i+1}</div>${thumb(o.s)}<div class="mid"><div class="cap">${esc(o.s.title)}</div><div class="sub">${o.s.status==='watched'?'Finished':STAT[o.s.status]}</div></div>
+    <div style="text-align:right">${mode==='chosen'?`<div style="font-size:20px;line-height:24px;font-weight:700;color:var(--accent)">${o.p}</div><div class="sub">points</div>`:stars(o.s.rating)}</div></button>`).join('');
+  return hdr('Top 5','The shows you keep coming back to')+`<main><div class="seg" role="group" aria-label="Ranking"><button data-act="t5" data-v="chosen" aria-pressed="${mode==='chosen'}">Most chosen</button><button data-act="t5" data-v="rated" aria-pressed="${mode==='rated'}">Highest rated</button></div>
+  <div class="list" style="padding-top:14px">${rows||'<div class="empty">Rate a few shows and they will land here.</div>'}</div>
+  <div class="sub" style="margin-top:12px">${mode==='chosen'?'+1 for each day you watch it, +5 for finishing, +3 for each rewatch. If you start a show and leave it for a month, it loses 5. Ties go to your rating, so this sorts itself out as you watch.':'Ranked by your star rating, with points breaking ties.'}</div></main>`}
+
+/* ---------- radial tab wheel ---------- */
+const WH=[['watching','Watching',I.play],['watched','Watched',I.check],['unwatched','Unwatched',I.clock],['add','Add',I.plus],['calendar','Calendar',I.cal],['stats','Stats',I.stats],['picks','Top Picks',I.spark],['top5','Top 5',I.trophy]];
+const W={on:false,t:null,sx:0,sy:0,cx:0,cy:0,sel:-1,moved:false,touchAt:0,nodes:null},R=132,R0=46;
+const polar=(cx,cy,rad,deg)=>[cx+rad*Math.sin(deg*Math.PI/180),cy-rad*Math.cos(deg*Math.PI/180)];
+const vib=n=>{try{navigator.vibrate&&navigator.vibrate(n)}catch(e){}};
+const pt=e=>{const t=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e;return{x:t.clientX,y:t.clientY}};
+function wedgePath(i){const a0=i*45-22.5+1.5,a1=i*45+22.5-1.5;
+  const p=(rad,d)=>polar(R,R,rad,d).map(n=>n.toFixed(1)).join(' ');
+  return `M${p(R0,a0)} L${p(R,a0)} A${R} ${R} 0 0 1 ${p(R,a1)} L${p(R0,a1)} A${R0} ${R0} 0 0 0 ${p(R0,a0)} Z`}
+function wheelOpen(){
+  W.t=null;if(dial.on)return;
+  const m=R+8;W.cx=Math.min(Math.max(W.sx,m),innerWidth-m);W.cy=Math.min(Math.max(W.sy,m),innerHeight-m);
+  const el=document.createElement('div');el.id='wheel';
+  el.innerHTML=`<div style="position:absolute;left:${W.cx}px;top:${W.cy}px;width:0;height:0"><svg width="${2*R}" height="${2*R}" viewBox="0 0 ${2*R} ${2*R}" style="position:absolute;left:${-R}px;top:${-R}px" aria-hidden="true">${WH.map((w,i)=>`<path d="${wedgePath(i)}"/>`).join('')}</svg>${WH.map((w,i)=>{const p=polar(0,0,(R+R0)/2+2,i*45);return `<div class="wd" style="left:${p[0].toFixed(1)}px;top:${p[1].toFixed(1)}px">${w[2]}<span>${w[1]}</span></div>`}).join('')}<div class="wc">Slide to a tab</div></div>`;
+  document.body.appendChild(el);
+  W.on=true;W.sel=-1;W.moved=false;
+  W.nodes={p:el.querySelectorAll('path'),d:el.querySelectorAll('.wd'),c:el.querySelector('.wc'),el};
+  vib(15)}
+function wheelMove(x,y){
+  if(!W.moved&&Math.hypot(x-W.sx,y-W.sy)<14)return;
+  W.moved=true;
+  const dx=x-W.cx,dy=y-W.cy,dist=Math.hypot(dx,dy);
+  const sel=dist>R0?Math.round(((Math.atan2(dx,-dy)*180/Math.PI+360)%360)/45)%8:-1;
+  if(sel===W.sel)return;
+  if(W.sel>=0){W.nodes.p[W.sel].classList.remove('on');W.nodes.d[W.sel].classList.remove('on')}
+  if(sel>=0){W.nodes.p[sel].classList.add('on');W.nodes.d[sel].classList.add('on')}
+  W.nodes.c.textContent=sel>=0?WH[sel][1]:'Let go to cancel';
+  W.sel=sel;vib(8)}
+function wheelClose(choose){
+  const sel=W.sel;W.nodes.el.remove();W.nodes=null;W.on=false;W.sel=-1;ui.suppress=Date.now()+600;
+  if(!choose||sel<0)return;
+  const id=WH[sel][0];ui.enter=true;ui.sheet=null;ui.id=null;
+  if(id==='add'){ui.sheet='add'}else{S.settings.tab=id;saveSettings();ui.q='';if(id==='stats')ui.statsAnim=true}
+  render();window.scrollTo(0,0)}
+function lpStart(e){
+  if(dial.on||W.on)return;
+  const t=e.target;if(t&&t.closest&&t.closest('input,textarea,select,.grip,#dial,#wheel'))return;
+  const p=pt(e);W.sx=p.x;W.sy=p.y;clearTimeout(W.t);W.t=setTimeout(wheelOpen,430)}
+function lpMove(e){const p=pt(e);
+  if(W.on){if(e.cancelable)e.preventDefault();wheelMove(p.x,p.y)}
+  else if(W.t&&Math.hypot(p.x-W.sx,p.y-W.sy)>12){clearTimeout(W.t);W.t=null}}
+function lpEnd(){clearTimeout(W.t);W.t=null;if(W.on)wheelClose(true)}
+document.addEventListener('touchstart',e=>{W.touchAt=Date.now();if(e.touches.length>1){clearTimeout(W.t);W.t=null;return}lpStart(e)},{passive:true});
+document.addEventListener('touchmove',lpMove,{passive:false});
+document.addEventListener('touchend',lpEnd);
+document.addEventListener('touchcancel',()=>{clearTimeout(W.t);W.t=null;if(W.on)wheelClose(false)});
+document.addEventListener('mousedown',e=>{if(e.button===0&&Date.now()-W.touchAt>800)lpStart(e)});
+document.addEventListener('mousemove',e=>{if(Date.now()-W.touchAt>800)lpMove(e)});
+document.addEventListener('mouseup',()=>{if(Date.now()-W.touchAt>800)lpEnd()});
+document.addEventListener('contextmenu',e=>{if(!(e.target.closest&&e.target.closest('input,textarea')))e.preventDefault()});
+document.addEventListener('click',e=>{if(Date.now()<(ui.suppress||0)){e.stopPropagation();e.preventDefault()}},true);
+
+/* ---------- number dial ---------- */
+const dial={on:false,id:null,v:1,o:0,prev:0,drag:false,max:200,nodes:null};
+function dialOpen(id){
+  const s=S.shows[id];if(!s||dial.on)return;
+  dial.on=true;dial.id=id;dial.v=1;dial.o=0;dial.drag=false;dial.max=s.total>0?Math.max(1,s.total-(s.ep||0)):200;
+  const el=document.createElement('div');el.id='dial';
+  el.innerHTML=`<div class="dtitle">${esc(s.title)}</div><div class="dr" id="dr">${Array.from({length:12},(_,j)=>{const p=polar(150,150,112,j*30);return `<div class="ds" style="left:${p[0].toFixed(1)}px;top:${p[1].toFixed(1)}px"></div>`}).join('')}<div class="dc"><div class="dn">+1</div><div class="sub dep"></div></div></div>
+  <div class="sub" style="max-width:290px;text-align:center">Slide your finger around the ring. Keep circling for bigger numbers, and go back the other way to lower it.</div>
+  <div class="flex" style="width:min(300px,86vw)"><button class="btn" style="flex:1" data-act="dialx">Cancel</button><button class="btn pri" style="flex:2" data-act="dialgo">Mark episodes</button></div>`;
+  document.body.appendChild(el);
+  dial.nodes={ds:el.querySelectorAll('.ds'),n:el.querySelector('.dn'),e:el.querySelector('.dep'),el};
+  const dr=el.querySelector('#dr');
+  dr.addEventListener('touchstart',dialDown,{passive:true});dr.addEventListener('mousedown',e=>{if(Date.now()-W.touchAt>800)dialDown(e)});
+  dialPaint()}
+function dialPaint(){
+  const v=dial.v,s=(v-1+dial.o)%12;
+  dial.nodes.ds.forEach((n,j)=>{const b=(s-j+12)%12;let val,cls;
+    if(j===s){val=v;cls='sel'}else if(v-b>=1){val=v-b;cls='past'}else{val=v+((j-s+12)%12);cls='fut'}
+    n.textContent=val;n.className='ds '+cls});
+  const sh=S.shows[dial.id];dial.nodes.n.textContent='+'+v;dial.nodes.e.textContent='Ep '+(sh.ep||0)+' → '+((sh.ep||0)+v)}
+function dialAt(p){const r=document.getElementById('dr').getBoundingClientRect();
+  const dx=p.x-(r.left+r.width/2),dy=p.y-(r.top+r.height/2);
+  return{d:Math.hypot(dx,dy),slot:Math.round(((Math.atan2(dx,-dy)*180/Math.PI+360)%360)/30)%12}}
+function dialDown(e){const q=dialAt(pt(e));if(q.d<56)return;
+  dial.drag=true;dial.prev=q.slot;dial.o=((q.slot-(dial.v-1))%12+12)%12;dialPaint()}
+function dialMove(e){
+  if(!dial.on||!dial.drag)return;if(e.cancelable)e.preventDefault();
+  const q=dialAt(pt(e));if(q.d<40)return;
+  let d=q.slot-dial.prev;if(d>6)d-=12;if(d<-6)d+=12;
+  let v=dial.v+d;const want=v;v=Math.max(1,Math.min(dial.max,v));
+  if(v!==want)dial.o=((q.slot-(v-1))%12+12)%12;
+  if(v!==dial.v)vib(6);
+  dial.v=v;dial.prev=q.slot;dialPaint()}
+document.addEventListener('touchmove',dialMove,{passive:false});
+document.addEventListener('mousemove',e=>{if(Date.now()-W.touchAt>800)dialMove(e)});
+const dialUp=()=>{dial.drag=false};
+document.addEventListener('touchend',dialUp);document.addEventListener('mouseup',dialUp);
+function dialClose(go){
+  if(!dial.on)return;const id=dial.id,v=dial.v;
+  dial.nodes.el.remove();dial.nodes=null;dial.on=false;dial.drag=false;
+  if(go&&S.shows[id]){addEps(S.shows[id],v);if(ui.toast){const m=ui.toast;ui.toast='';toast(m)}else render()}}
+/* ---------- drag to reorder (Up Next) ---------- */
+I.grip='<svg viewBox="0 0 18 22" fill="currentColor" aria-hidden="true"><circle cx="5" cy="4" r="1.6"/><circle cx="13" cy="4" r="1.6"/><circle cx="5" cy="11" r="1.6"/><circle cx="13" cy="11" r="1.6"/><circle cx="5" cy="18" r="1.6"/><circle cx="13" cy="18" r="1.6"/></svg>';
+let drag=null;
+document.addEventListener('pointerdown',e=>{
+  const g=e.target.closest&&e.target.closest('.grip');if(!g||drag)return;
+  const row=g.closest('.row'),rows=[...row.parentElement.children];
+  drag={row,rows,i:rows.indexOf(row),to:rows.indexOf(row),h:row.getBoundingClientRect().height+10,y0:e.clientY,pid:e.pointerId};
+  try{g.setPointerCapture(e.pointerId)}catch(_){}
+  row.style.position='relative';row.style.zIndex='3';row.style.boxShadow='0 8px 24px rgba(0,0,0,.5)';vib(10);e.preventDefault()});
+document.addEventListener('pointermove',e=>{
+  if(!drag||e.pointerId!==drag.pid)return;
+  const dy=e.clientY-drag.y0;drag.row.style.transform='translateY('+dy+'px)';
+  const to=Math.max(0,Math.min(drag.rows.length-1,drag.i+Math.round(dy/drag.h)));drag.to=to;
+  drag.rows.forEach((r,k)=>{if(r===drag.row)return;let sh=0;
+    if(drag.i<to&&k>drag.i&&k<=to)sh=-drag.h;else if(drag.i>to&&k<drag.i&&k>=to)sh=drag.h;
+    r.style.transition='transform .12s';r.style.transform=sh?'translateY('+sh+'px)':''})});
+function dragEnd(){
+  if(!drag)return;const d=drag;drag=null;
+  if(d.to!==d.i){const full=Object.values(S.shows).filter(s=>s.status==='unwatched').sort((x,y)=>x.order-y.order);
+    const m=full.splice(d.i,1)[0];full.splice(d.to,0,m);full.forEach((s,n)=>{s.order=n;saveShow(s)})}
+  render()}
+document.addEventListener('pointerup',dragEnd);document.addEventListener('pointercancel',dragEnd);
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();ui.inst=e;if(ui.sheet==='settings')render()});
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist().catch(()=>{})}catch(e){}
+init();
+})();
+</script>
+
+<script>
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+}
+</script>
+</body>
+</html>
